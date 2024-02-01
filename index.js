@@ -8,9 +8,10 @@ dotenv.config({
 
 app.get('/', (req, res) => {
   res.status(200).json({
-    message:"Welcome to the XPulse"
+    message:"Welcome to the XPulse please give one chance"
   });
 })
+
 
 connectDB().then(()=>{
     app.listen(process.env.PORT || 5000, () => {
