@@ -1,17 +1,9 @@
-import express from 'express';
 import dotenv from 'dotenv';
 import connectDB from './db/index.js';
-const app = express()
+import { app } from './app.js';
 dotenv.config({
     path: './.env'
 })
-
-app.get('/', (req, res) => {
-  res.status(200).json({
-    message:"Welcome to the XPulse please"
-  });
-})
-
 
 connectDB().then(()=>{
     app.listen(process.env.PORT || 5000, () => {
