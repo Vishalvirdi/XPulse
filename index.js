@@ -8,7 +8,7 @@ dotenv.config({
 
 app.get('/', (req, res) => {
   res.status(200).json({
-    message:"Welcome to the XPulse please give one chance"
+    message:"Welcome to the XPulse please"
   });
 })
 
