@@ -1,12 +1,13 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
-import {ApiError} from '../utils/apiError.js';
+import {ApiError} from '../utils/ApiError.js';
+import {ApiResponse} from '../utils/ApiResponse.js';
 import {uploadOnCloudinary} from "../utils/cloudinary.js";
 const registerUser = asyncHandler(async (req, res) => {
-  const { email, username, password, firstName, lastName } = req.body;
+  const { email, userName, password, firstName, lastName } = req.body;
 
   if (
-    [firstName, lastName, email, username, password].some(
+    [firstName, lastName, email, userName, password].some(
       (field) => field?.trim() === ""
     )
   ) {
@@ -14,7 +15,7 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   const existedUser = await User.findOne({
-    $or: [{ username }, { email }],
+    $or: [{ userName }, { email }],
   });
 
   if (existedUser) {
@@ -52,7 +53,7 @@ const registerUser = asyncHandler(async (req, res) => {
     coverImage: coverImage?.url || "",
     email,
     password,
-    username: username.toLowerCase(),
+    userName: userName,
   });
 
   const createdUser = await User.findById(user._id).select(
