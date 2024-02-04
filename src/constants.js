@@ -1,1 +1,1 @@
-export const DB_NAME = "XPulse-DB";
+export const DB_NAME = "XPulseDB";
