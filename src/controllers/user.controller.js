@@ -2,7 +2,10 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import {
+  deleteFromCloudinary,
+  uploadOnCloudinary,
+} from "../utils/cloudinary.js";
 
 const generateAccessAndRefereshTokens = async (userId) => {
   try {
@@ -44,6 +47,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
   const avatarLocalPath = req.files?.avatar?.[0]?.path;
   const coverImageLocalPath = req.files?.coverImage?.[0]?.path;
+  console.log(avatarLocalPath, coverImageLocalPath);
 
   let avatar, coverImage;
 
@@ -58,8 +62,14 @@ const registerUser = asyncHandler(async (req, res) => {
   const user = await User.create({
     firstName,
     lastName,
-    avatar: avatar?.url || "",
-    coverImage: coverImage?.url || "",
+    avatar: {
+      mediaId: avatar?.public_id || "",
+      avatarUrl: avatar?.url || "",
+    },
+    coverImage: {
+      mediaId: coverImage?.public_id || "",
+      coverImageUrl: coverImage?.url || "",
+    },
     email,
     password,
     userName: userName,
@@ -270,19 +280,25 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Avatar file is missing");
   }
 
-  //TODO: delete old image - assignment
-
   const avatar = await uploadOnCloudinary(avatarLocalPath);
 
   if (!avatar.url) {
     throw new ApiError(400, "Error while uploading on avatar");
   }
 
+  //delete old image
+
+  const mediaId = req?.user?.avatar?.mediaId;
+  await deleteFromCloudinary(mediaId);
+
   const user = await User.findByIdAndUpdate(
     req.user?._id,
     {
       $set: {
-        avatar: avatar.url,
+        avatar: {
+          mediaId: avatar?.public_id || "",
+          avatarUrl: avatar?.url || "",
+        },
       },
     },
     { new: true }
@@ -300,19 +316,25 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Cover image file is missing");
   }
 
-  //TODO: delete old image - assignment
-
   const coverImage = await uploadOnCloudinary(coverImageLocalPath);
 
   if (!coverImage.url) {
     throw new ApiError(400, "Error while uploading on avatar");
   }
 
+  //delete old image
+
+  const mediaId = req?.user?.coverImage?.mediaId;
+  await deleteFromCloudinary(mediaId);
+
   const user = await User.findByIdAndUpdate(
     req.user?._id,
     {
       $set: {
-        coverImage: coverImage.url,
+        coverImage: {
+          mediaId: coverImage?.public_id,
+          coverImageUrl: coverImage?.url,
+        },
       },
     },
     { new: true }
