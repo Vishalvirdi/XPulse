@@ -27,10 +27,20 @@ const userSchema = new Schema(
       trim: true,
     },
     avatar: {
-      type: String,
+      mediaId: {
+        type: String,
+      },
+      avatarUrl: {
+        type: String,
+      },
     },
     coverImage: {
-      type: String,
+      mediaId: {
+        type: String,
+      },
+      coverImageUrl: {
+        type: String,
+      },
     },
     password: {
       type: String,
