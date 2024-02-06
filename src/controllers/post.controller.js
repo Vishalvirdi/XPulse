@@ -2,7 +2,10 @@ import { Post } from "../models/post.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
+import {
+  deleteFromCloudinary,
+  uploadOnCloudinary,
+} from "../utils/cloudinary.js";
 
 const createPost = asyncHandler(async (req, res) => {
   const { caption, isPublished } = req.body;
@@ -28,14 +31,14 @@ const deletePost = asyncHandler(async (req, res) => {
   const { postId } = req.body;
   console.log(postId);
   const post = await Post.findById(postId);
-  if(!post){
+  if (!post) {
     throw new ApiError(401, "Post not found");
   }
 
   const mediaId = post?.mediaId;
 
   const response = await deleteFromCloudinary(mediaId);
-  console.log(response)
+  console.log(response);
 
   const deletedPost = await Post.deleteOne({ _id: postId });
   return res
@@ -43,4 +46,20 @@ const deletePost = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, deletedPost, "Post deleted Successfully"));
 });
 
-export { createPost, deletePost };
+const addComment = asyncHandler(async (req, res) => {
+  const { postId, content } = req.body;
+  try {
+    const commentAdded = await Comment.create({
+      content,
+      post: postId,
+      owner: req?.user?._id,
+    });
+    return res
+      .status(200)
+      .json(new ApiResponse(200, commentAdded, "comment added Successfully"));
+  } catch (error) {
+    return res.status(401).json(new ApiError(401, error.message));
+  }
+});
+
+export { createPost, deletePost, addComment };
