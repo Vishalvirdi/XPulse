@@ -13,6 +13,6 @@ router
 
   router
   .route("/comment-on-post")
-  .delete(verifyJWT,addComment);
+  .post(verifyJWT,addComment);
 
 export default router;

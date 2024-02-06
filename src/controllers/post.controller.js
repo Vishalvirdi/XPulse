@@ -1,3 +1,4 @@
+import { Comment } from "../models/comment.model.js";
 import { Post } from "../models/post.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -47,11 +48,12 @@ const deletePost = asyncHandler(async (req, res) => {
 });
 
 const addComment = asyncHandler(async (req, res) => {
-  const { postId, content } = req.body;
   try {
+    const { post, content } = req.body;
+    console.log(post, content);
     const commentAdded = await Comment.create({
       content,
-      post: postId,
+      post: post,
       owner: req?.user?._id,
     });
     return res
