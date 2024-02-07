@@ -65,9 +65,6 @@ const addComment = asyncHandler(async (req, res) => {
   }
 });
 
-async function hasAlreadyLiked(likedBy, post) {
-  return like !== null;
-}
 
 const likePost = asyncHandler(async (req, res) => {
   try {
