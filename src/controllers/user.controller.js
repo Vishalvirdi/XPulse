@@ -345,6 +345,68 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, user, "Cover image updated successfully"));
 });
 
+
+const getUserProfile = asyncHandler(async (req, res) => {
+  const {userName} = req?.params;
+
+  const profile = await User.aggregate([
+    {
+      $match: {
+        userName: userName,
+      },
+    },
+    {
+      $lookup: {
+        from: "followers",
+        localField: "_id",
+        foreignField: "profile",
+        as: "myFollowers",
+      },
+    },
+    {
+      $lookup: {
+        from: "followers",
+        localField: "_id",
+        foreignField: "follower",
+        as: "followingTo",
+      },
+    },
+    {
+      $addFields: {
+        countFollowers: { $size: "$myFollowers" },
+        countFollowings: { $size: "$followingTo" },
+        isFollowing: {
+          $in: [req?.user?._id, "$myFollowers.follower"], // Using userId here
+        },
+      },
+    },
+    {
+      $project: {
+        firstName: 1,
+        lastName: 1,
+        userName: 1,
+        email: 1,
+        avatar: 1,
+        coverImage: 1,
+        countFollowers: 1,
+        countFollowings: 1,
+        isFollowing: 1,
+      },
+    },
+  ]);
+
+  if (profile.length === 0) {
+    throw new ApiError(404, "User profile not found");
+  }
+
+  return res.status(200).json({
+    status: "success",
+    data: profile[0],
+    message: "User channel fetched successfully",
+  });
+});
+
+
 export {
   registerUser,
   loginUser,
@@ -355,4 +417,5 @@ export {
   updateUserAvatar,
   updateUserCoverImage,
   getCurrentUser,
+  getUserProfile
 };
