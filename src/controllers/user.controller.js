@@ -399,11 +399,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
     throw new ApiError(404, "User profile not found");
   }
 
-  return res.status(200).json({
-    status: "success",
-    data: profile[0],
-    message: "User channel fetched successfully",
-  });
+  return res.status(200).json(new ApiResponse(200, profile[0],"Profile fetched successfully"));
 });
 
 

@@ -8,6 +8,9 @@ import {
   deleteFromCloudinary,
   uploadOnCloudinary,
 } from "../utils/cloudinary.js";
+import mongoose from "mongoose";
+
+const ObjectId = mongoose.Types.ObjectId;
 
 const createPost = asyncHandler(async (req, res) => {
   const { caption, isPublished } = req.body;
@@ -65,7 +68,6 @@ const addComment = asyncHandler(async (req, res) => {
   }
 });
 
-
 const likePost = asyncHandler(async (req, res) => {
   try {
     const { postId } = req.body;
@@ -91,4 +93,55 @@ const likePost = asyncHandler(async (req, res) => {
   }
 });
 
-export { createPost, deletePost, addComment, likePost };
+const getPostDetails = asyncHandler(async (req, res) => {
+  const { postId } = req.params;
+
+
+  const postDetails = await Post.aggregate([
+    {
+      $match: {
+        _id: new ObjectId(postId),
+      },
+    },
+    {
+      $lookup: {
+        from: "comments",
+        localField: "_id",
+        foreignField: "post",
+        as: "comments",
+      },
+    },
+    {
+      $lookup: {
+        from: "likes",
+        localField: "_id",
+        foreignField: "post",
+        as: "likes",
+      },
+    },
+    {
+      $addFields: {
+        countComments: {
+          $size: "$comments",
+        },
+        countLikes: {
+          $size: "$likes",
+        },
+      },
+    },
+    {
+      $project: {
+        post: 1,
+        comments: 1,
+        countComments: 1,
+        countLikes: 1,
+        content: 1,
+      },
+    },
+  ]);
+
+  return res.status(200).json(new ApiResponse(200, postDetails[0],"Profile fetched successfully"));
+
+});
+
+export { createPost, deletePost, addComment, likePost, getPostDetails };

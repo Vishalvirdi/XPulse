@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addComment, createPost, deletePost, likePost } from "../controllers/post.controller.js";
+import { addComment, createPost, deletePost, getPostDetails, likePost } from "../controllers/post.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
 const router = Router();
@@ -18,5 +18,6 @@ router
   router
   .route("/like-on-post")
   .post(verifyJWT,likePost);
+  router.route("/c/:postId").get(getPostDetails)
 
 export default router;
